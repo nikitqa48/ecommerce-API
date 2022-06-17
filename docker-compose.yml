@@ -1,0 +1,79 @@
+version: "3.9"
+   
+services:
+  db:
+    user: postgres
+    build:
+      context: ./Docker
+      dockerfile: db.Dockerfile
+    volumes:
+      - .volumes/pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq
+    volumes:
+      - .volumes/conf/myrabbit.conf:/etc/rabbitmq/rabbitmq.config
+    ports:
+      - 5672:5672
+    environment:   
+    - RABBITMQ_DEFAULT_USER=admin
+    - RABBITMQ_DEFAULT_PASS=password
+  
+  web:
+    build: ./
+    command: >
+      sh -c "python manage.py makemigrations && 
+      python manage.py migrate 
+      && python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+     db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"  
+    environment:
+      - POSTGRES_DB=fabrique
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=230251
+      - CELERY_BROKER_URL=amqp://admin:password@rabbitmq:5672//
+
+  celery-worker:
+    build: ./
+    command: >
+      sh -c "celery -A config.celery worker --loglevel=INFO" 
+    # command: celery -A config.celery beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    # restart: always
+    volumes:
+      - .:/app
+    network_mode: host
+
+    environment:
+      - POSTGRES_DB=fabrique
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=230251
+    depends_on:
+      - db
+      - web
+      - rabbitmq
+
+  celery-beat:
+    build: ./
+    command: celery -A config.celery beat -l DEBUG --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/app
+    environment:
+      - POSTGRES_DB=fabrique
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=230251
+    depends_on:
+      - web
+      - rabbitmq
+      - db

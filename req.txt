@@ -1,0 +1,12 @@
+Django>=3.0,<4.0
+django-cors-headers
+Pillow
+django-filter
+django-celery-beat
+celery==4.4.7
+psycopg2>=2.8
+gunicorn
+djangorestframework
+django-rest-swagger
+requests
+pytils
