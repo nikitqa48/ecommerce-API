@@ -380,31 +380,6 @@ class ProductRecommendation(models.Model):
         verbose_name_plural = 'Product recomendations'
 
 
-# class Discount(models.Model):
-#     date_created = models.DateTimeField(auto_now_add=True, db_index=True)
-#     date_end = models.DateTimeField()
-#     percent = models.PositiveIntegerField(default=0)
-#
-#     def __str__(self):
-#         return f"Скидка для продукта {self.product}"
-#
-#     class Meta:
-#         ordering = ['-date_created', 'date_end']
-#
-#
-# class InvoiceProduct(models.Model):
-#     discount = models.OneToOneField(Discount, on_delete=models.CASCADE, null=True, blank=True)
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='invoice')
-#     _price = models.IntegerField()
-#
-#     def price(self):
-#         #TODO подумать, как будет возвращаться стоимость изделия
-#         total = self._price
-#         if self.discount:
-#             total = self._price - (self._price*self.discount.percent/100)
-#         return total
-
-
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
