@@ -1,3 +1,8 @@
 from django.db import models
 
-# Create your models here.
+class Payment(models.Model):
+    # methods = models.ForeignKey()
+    date = models.DateTimeField()
+    card_number = models.IntegerField()
+    card_holder = models.CharField(max_length=500)
+    cvc = models.IntegerField()

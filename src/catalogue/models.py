@@ -195,6 +195,16 @@ class CatalogCategory(models.Model):
     catalogue = models.ForeignKey(Catalogue, on_delete=models.CASCADE)
 
 
+
+class Discount(models.Model):
+    percent = models.IntegerField()
+    date_created = models.DateTimeField(auto_now_add=True, db_index=True)
+    date_end = models.DateTimeField()
+
+    # def __str__(self):
+    #     return f"скидка {self.discount}% для {self.product.name}"
+
+
 class Product(models.Model):
     name = models.CharField(max_length=5000)
     slug = models.SlugField(blank=True)
@@ -236,6 +246,7 @@ class Product(models.Model):
         'self', through='ProductRecommendation', blank=True,
         verbose_name="Recommended products",
         help_text="Рекомендации для продукта")
+    discount = models.ForeignKey(Discount, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -388,4 +399,5 @@ class Review(models.Model):
 
     def __str__(self):
         return self.user.username
+
 

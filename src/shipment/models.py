@@ -1,3 +1,7 @@
 from django.db import models
 
-# Create your models here.
+
+class Shipment(models.Model):
+    address = models.CharField(max_length=500)
+    method = models.CharField(max_length=500)
+
